@@ -2,6 +2,9 @@
   "name": "natively-cli",
   "version": "1.0.0",
   "main": "dist/index.js",
+  "bin": {
+    "natively": "./dist/index.js"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsc -w",

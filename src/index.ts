@@ -32,6 +32,7 @@ program
     "components/ui"
   )
   .option("-a, --all", "Add all components")
+  .option("-i, --install-deps", "Install dependencies automatically")
   .action(addCommand);
 
 program.parse();
