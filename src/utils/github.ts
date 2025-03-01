@@ -3,7 +3,7 @@ import path from "path";
 import { logger } from "./logger";
 
 const REPO_URL =
-  "https://raw.githubusercontent.com/your-username/natively-components/main";
+  "https://github.com/Ayushhgupta39/natively-ui.git";
 
 export const github = {
   /**
