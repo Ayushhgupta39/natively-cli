@@ -1,9 +1,9 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 const REPO_URL =
-  "https://github.com/Ayushhgupta39/natively-ui.git";
+  "https://raw.githubusercontent.com/Ayushhgupta39/natively-ui/main";
 
 export const github = {
   /**

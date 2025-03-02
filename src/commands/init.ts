@@ -1,7 +1,7 @@
 import path from "path";
 import inquirer from "inquirer";
-import { logger } from "../utils/logger";
-import { fs_utils } from "../utils/fs";
+import { logger } from "../utils/logger.js";
+import { fs_utils } from "../utils/fs.js";
 
 export async function initCommand(): Promise<void> {
   logger.info("Initializing React Native UI components...");

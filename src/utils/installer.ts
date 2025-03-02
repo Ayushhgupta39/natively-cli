@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import ora from "ora";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 export const dependencies = {
   /**

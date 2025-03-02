@@ -1,10 +1,10 @@
 import path from "path";
 import inquirer from "inquirer";
 import ora from "ora";
-import { logger } from "../utils/logger";
-import { fs_utils } from "../utils/fs";
-import { github } from "../utils/github";
-import { dependencies } from "../utils/installer";
+import { logger } from "../utils/logger.js";
+import { fs_utils } from "../utils/fs.js";
+import { github } from "../utils/github.js";
+import { dependencies } from "../utils/installer.js";
 
 export async function addCommand(
   component?: string,

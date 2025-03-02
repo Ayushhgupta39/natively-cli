@@ -1,6 +1,6 @@
 import fs from "fs-extra";
 import path from "path";
-import { logger } from "./logger";
+import { logger } from "./logger.js";
 
 export const fs_utils = {
   // Check if a file or directory exists

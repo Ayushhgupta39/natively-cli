@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { addCommand } from "./commands/add";
-import { initCommand } from "./commands/init";
-import { logger } from "./utils/logger";
+import { addCommand } from "./commands/add.js";
+import { initCommand } from "./commands/init.js";
+import { logger } from "./utils/logger.js";
 
 // Print a welcome message
 logger.welcome();

@@ -1,6 +1,7 @@
 {
   "name": "natively-cli",
   "version": "1.0.0",
+  "type": "module",
   "main": "dist/index.js",
   "bin": {
     "natively": "./dist/index.js"
