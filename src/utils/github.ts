@@ -2,7 +2,8 @@ import fs from "fs-extra";
 import path from "path";
 import { logger } from "./logger.js";
 
-const REPO_URL =
+// Update the repository URL to your actual GitHub repo
+const REPO_BASE_URL =
   "https://raw.githubusercontent.com/Ayushhgupta39/natively-ui/main";
 
 export const github = {
@@ -11,7 +12,8 @@ export const github = {
    */
   async fetchFile(filePath: string): Promise<string> {
     try {
-      const response = await fetch(`${REPO_URL}/${filePath}`);
+      const url = `${REPO_BASE_URL}/${filePath}`;
+      const response = await fetch(url);
 
       if (!response.ok) {
         throw new Error(`Failed to fetch ${filePath}: ${response.statusText}`);
@@ -29,10 +31,9 @@ export const github = {
    */
   async getAvailableComponents(): Promise<string[]> {
     try {
-      // This is a simplified approach. In a real implementation,
-      // you might want to fetch a components.json or similar
-      // For now, we'll return a hardcoded list
-      return ["button", "card", "input", "checkbox", "switch"];
+      // In a production implementation, you'd fetch a components.json or list the directory
+      // For now, return the components you have available
+      return ["button", "card"];
     } catch (error) {
       logger.error("Failed to fetch available components list");
       logger.info("Falling back to default components list");
@@ -50,48 +51,66 @@ export const github = {
     try {
       fs.ensureDirSync(targetDir);
 
-      const componentContent = await github.fetchFile(
-        `components/${component}/index.tsx`
-      );
-      fs.writeFileSync(
-        path.join(targetDir, `${component}.tsx`),
-        componentContent
-      );
+      // Update path to match your repository structure
+      const componentPath = `apps/mobile/components/ui/${component}.tsx`;
 
-      let dependencies: string[] = [];
-
-      // Fetch types file if it exists
       try {
-        const typesContent = await github.fetchFile(
-          `components/${component}/types.ts`
-        );
+        const componentContent = await github.fetchFile(componentPath);
         fs.writeFileSync(
-          path.join(targetDir, `${component}.types.ts`),
-          typesContent
+          path.join(targetDir, `${component}.tsx`),
+          componentContent
         );
-        dependencies.push(`${component}.types.ts`);
+        logger.success(`Component ${component} downloaded successfully`);
       } catch (error) {
-        logger.info(`No separate types file found for ${component}`);
+        logger.error(`Failed to fetch component ${component}`);
+        throw error;
       }
 
-      logger.success(`Component ${component} downloaded successfully`);
+      // Determine dependencies based on component
+      let dependencies: string[] = [];
 
-      return dependencies; // Ensure it returns an array
+      // For now, all components need these base dependencies
+      dependencies.push("clsx", "tailwind-merge");
+
+      // Add component-specific dependencies
+      if (component === "button") {
+        dependencies.push("react-native", "expo-router");
+      } else if (component === "card") {
+        dependencies.push("react-native");
+      }
+
+      return dependencies;
     } catch (error) {
       logger.error(`Failed to download component ${component}`);
       throw error;
     }
   },
+
+  /**
+   * Download a utility from GitHub
+   */
   async downloadUtil(utilName: string, targetDir: string): Promise<string[]> {
     try {
       fs.ensureDirSync(targetDir);
 
-      const utilContent = await github.fetchFile(`utils/${utilName}.ts`);
-      fs.writeFileSync(path.join(targetDir, `${utilName}.ts`), utilContent);
+      // Update path to match your repository structure
+      const utilPath = `apps/mobile/lib/${utilName}.ts`;
 
-      logger.success(`Utility ${utilName} downloaded successfully`);
+      try {
+        const utilContent = await github.fetchFile(utilPath);
+        fs.writeFileSync(path.join(targetDir, `${utilName}.ts`), utilContent);
+        logger.success(`Utility ${utilName} downloaded successfully`);
+      } catch (error) {
+        logger.error(`Failed to fetch utility ${utilName}`);
+        throw error;
+      }
 
-      return [utilName]; // Return as an array to match expected usage
+      // Return dependencies for this utility
+      if (utilName === "utils") {
+        return ["clsx", "tailwind-merge"];
+      }
+
+      return [];
     } catch (error) {
       logger.error(`Failed to download utility ${utilName}`);
       throw error;

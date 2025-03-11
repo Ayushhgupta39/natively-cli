@@ -1,16 +1,42 @@
 import { exec } from "child_process";
 import ora from "ora";
+import fs from "fs-extra";
+import path from "path";
+import inquirer from "inquirer";
 import { logger } from "./logger.js";
 
 export const dependencies = {
   /**
-   * Check if a package manager is available
+   * Detect the package manager used in the project
    */
-  async checkPackageManager(): Promise<"npm" | "yarn" | "pnpm" | null> {
+  async detectPackageManager(): Promise<"npm" | "yarn" | "pnpm" | null> {
+    // Check for lock files to determine which package manager is being used
+    const cwd = process.cwd();
+
+    if (fs.existsSync(path.join(cwd, "yarn.lock"))) {
+      return "yarn";
+    }
+
+    if (fs.existsSync(path.join(cwd, "pnpm-lock.yaml"))) {
+      return "pnpm";
+    }
+
+    if (fs.existsSync(path.join(cwd, "package-lock.json"))) {
+      return "npm";
+    }
+
+    return null; // No lock file found
+  },
+
+  /**
+   * Check if a package manager is available in the system
+   */
+  async checkPackageManager(
+    manager: "npm" | "yarn" | "pnpm"
+  ): Promise<boolean> {
     try {
-      // Check for yarn first
       await new Promise((resolve, reject) => {
-        exec("yarn --version", (error) => {
+        exec(`${manager} --version`, (error) => {
           if (error) {
             reject(error);
           } else {
@@ -18,38 +44,63 @@ export const dependencies = {
           }
         });
       });
-      return "yarn";
+      return true;
     } catch {
-      try {
-        // Then check for pnpm
-        await new Promise((resolve, reject) => {
-          exec("pnpm --version", (error) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(null);
-            }
-          });
-        });
-        return "pnpm";
-      } catch {
-        try {
-          // Finally check for npm
-          await new Promise((resolve, reject) => {
-            exec("npm --version", (error) => {
-              if (error) {
-                reject(error);
-              } else {
-                resolve(null);
-              }
-            });
-          });
-          return "npm";
-        } catch {
-          return null;
-        }
+      return false;
+    }
+  },
+
+  /**
+   * Let user choose a package manager
+   */
+  async choosePackageManager(): Promise<"npm" | "yarn" | "pnpm"> {
+    // First try to detect from project
+    const detected = await dependencies.detectPackageManager();
+
+    if (detected) {
+      const { useDetected } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "useDetected",
+          message: `Detected ${detected} as your package manager. Use it?`,
+          default: true,
+        },
+      ]);
+
+      if (useDetected) {
+        return detected;
       }
     }
+
+    // Find available package managers
+    const managers = [];
+    if (await dependencies.checkPackageManager("npm")) managers.push("npm");
+    if (await dependencies.checkPackageManager("yarn")) managers.push("yarn");
+    if (await dependencies.checkPackageManager("pnpm")) managers.push("pnpm");
+
+    // If only one is available, use it
+    if (managers.length === 1) {
+      return managers[0] as "npm" | "yarn" | "pnpm";
+    }
+
+    // If multiple are available, let user choose
+    if (managers.length > 1) {
+      const { manager } = await inquirer.prompt([
+        {
+          type: "list",
+          name: "manager",
+          message: "Which package manager would you like to use?",
+          choices: managers,
+          default: managers.includes("npm") ? "npm" : managers[0],
+        },
+      ]);
+
+      return manager;
+    }
+
+    // If none are available, default to npm
+    logger.warning("No package manager detected. Defaulting to npm.");
+    return "npm";
   },
 
   /**
@@ -61,15 +112,7 @@ export const dependencies = {
       return true;
     }
 
-    const pkgManager = await dependencies.checkPackageManager();
-
-    if (!pkgManager) {
-      logger.error(
-        "No package manager found. Please install dependencies manually:"
-      );
-      logger.info("npm install " + deps.join(" "));
-      return false;
-    }
+    const pkgManager = await dependencies.choosePackageManager();
 
     const spinner = ora(
       `Installing dependencies with ${pkgManager}...`

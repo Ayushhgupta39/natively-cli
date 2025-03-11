@@ -34,7 +34,7 @@ export async function addCommand(
     try {
       // Make sure utils are in place first
       fs_utils.ensureDir(utilsDir);
-      const requiredDeps = await github.downloadUtil("cn", utilsDir);
+      const requiredDeps = await github.downloadUtil("utils", utilsDir);
 
       // Download all components
       const allDependencies = new Set<string>(requiredDeps);
@@ -106,7 +106,7 @@ export async function addCommand(
   try {
     // Make sure utils are in place first
     fs_utils.ensureDir(utilsDir);
-    const utilDeps = await github.downloadUtil("cn", utilsDir);
+    const utilDeps = await github.downloadUtil("utils", utilsDir);
 
     // Download the component
     fs_utils.ensureDir(componentsDir);
