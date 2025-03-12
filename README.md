@@ -1,6 +1,6 @@
 # Nativly CLI
 
-A React Native UI component library CLI inspired by [shadcn/ui](https://ui.shadcn.com/), allowing you to easily add Tailwind-powered components to your React Native projects.
+A React Native UI component library CLI, allowing you to easily add Tailwind-powered components to your React Native projects.
 
 ## ✨ Features
 
@@ -93,4 +93,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## 👨‍💻 Credits
 
-Created by **Ayush Gupta**. Inspired by [shadcn/ui](https://ui.shadcn.com/).
+Created by [Ayush Gupta](https://x.com/Ayushh_gif).
