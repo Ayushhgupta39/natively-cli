@@ -52,20 +52,29 @@ export async function addCommand(
       logger.info(depsArray.join(", "));
 
       // Install dependencies if requested
-      if (installDeps) {
-        await dependencies.install(depsArray);
+      const missingDeps = await dependencies.checkExistingDependencies(
+        depsArray
+      );
+      if (missingDeps.length === 0) {
+        logger.success("All dependencies are already installed");
       } else {
-        const { shouldInstall } = await inquirer.prompt([
-          {
-            type: "confirm",
-            name: "shouldInstall",
-            message: "Would you like to install the required dependencies now?",
-            default: true,
-          },
-        ]);
-
-        if (shouldInstall) {
+        // Install dependencies if requested
+        if (installDeps) {
           await dependencies.install(depsArray);
+        } else {
+          const { shouldInstall } = await inquirer.prompt([
+            {
+              type: "confirm",
+              name: "shouldInstall",
+              message:
+                "Would you like to install the required dependencies now?",
+              default: true,
+            },
+          ]);
+
+          if (shouldInstall) {
+            await dependencies.install(depsArray);
+          }
         }
       }
     } catch (error) {
@@ -77,13 +86,26 @@ export async function addCommand(
   }
 
   // If no component specified, show selection prompt
+  // If no component specified, show selection prompt
   if (!component) {
+    // First, fetch all component metadata
+    const componentsWithMetadata = [];
+    for (const comp of availableComponents) {
+      const metadata = await github.getComponentMetadata(comp);
+      componentsWithMetadata.push({
+        name: `${comp}${
+          metadata?.description ? ` - ${metadata.description}` : ""
+        }`,
+        value: comp,
+      });
+    }
+
     const answers = await inquirer.prompt([
       {
         type: "list",
         name: "component",
         message: "Which component would you like to add?",
-        choices: availableComponents,
+        choices: componentsWithMetadata,
       },
     ]);
 
@@ -126,20 +148,26 @@ export async function addCommand(
     logger.info(depsArray.join(", "));
 
     // Install dependencies if requested
-    if (installDeps) {
-      await dependencies.install(depsArray);
+    const missingDeps = await dependencies.checkExistingDependencies(depsArray);
+    if (missingDeps.length === 0) {
+      logger.success("All dependencies are already installed");
     } else {
-      const { shouldInstall } = await inquirer.prompt([
-        {
-          type: "confirm",
-          name: "shouldInstall",
-          message: "Would you like to install the required dependencies now?",
-          default: true,
-        },
-      ]);
-
-      if (shouldInstall) {
+      // Install dependencies if requested
+      if (installDeps) {
         await dependencies.install(depsArray);
+      } else {
+        const { shouldInstall } = await inquirer.prompt([
+          {
+            type: "confirm",
+            name: "shouldInstall",
+            message: "Would you like to install the required dependencies now?",
+            default: true,
+          },
+        ]);
+
+        if (shouldInstall) {
+          await dependencies.install(depsArray);
+        }
       }
     }
   } catch (error) {

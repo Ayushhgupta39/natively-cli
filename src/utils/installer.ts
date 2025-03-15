@@ -102,17 +102,43 @@ export const dependencies = {
     logger.warning("No package manager detected. Defaulting to npm.");
     return "npm";
   },
+  /**
+   * Check if dependencies are already installed in package.json
+   */
+  async checkExistingDependencies(deps: string[]): Promise<string[]> {
+    try {
+      const packageJsonPath = path.join(process.cwd(), "package.json");
+      if (fs.existsSync(packageJsonPath)) {
+        const packageJson = await fs.readJson(packageJsonPath);
+        const installedDeps = {
+          ...packageJson.dependencies,
+          ...packageJson.devDependencies,
+        };
+
+        // Filter out already installed dependencies
+        return deps.filter((dep) => !installedDeps[dep]);
+      }
+    } catch (error) {
+      logger.warning("Could not check existing dependencies");
+    }
+    return deps; // Return all deps if can't check
+  },
 
   /**
    * Install dependencies
    */
   async install(deps: string[]): Promise<boolean> {
-    if (deps.length === 0) {
-      logger.info("No dependencies to install");
+    // Check if dependencies are already installed
+    const missingDeps = await this.checkExistingDependencies(deps);
+
+    if (missingDeps.length === 0) {
+      logger.success("All dependencies are already installed");
       return true;
     }
 
-    const pkgManager = await dependencies.choosePackageManager();
+    logger.info(`Dependencies to install: ${missingDeps.join(", ")}`);
+
+    const pkgManager = await this.choosePackageManager();
 
     const spinner = ora(
       `Installing dependencies with ${pkgManager}...`
@@ -123,13 +149,13 @@ export const dependencies = {
 
       switch (pkgManager) {
         case "yarn":
-          command = `yarn add ${deps.join(" ")}`;
+          command = `yarn add ${missingDeps.join(" ")}`;
           break;
         case "pnpm":
-          command = `pnpm add ${deps.join(" ")}`;
+          command = `pnpm add ${missingDeps.join(" ")}`;
           break;
         default:
-          command = `npm install ${deps.join(" ")}`;
+          command = `npm install ${missingDeps.join(" ")}`;
       }
 
       await new Promise((resolve, reject) => {
@@ -148,7 +174,7 @@ export const dependencies = {
       spinner.fail("Failed to install dependencies");
       logger.error(`Error: ${error}`);
       logger.info("Please install dependencies manually:");
-      logger.info(`${pkgManager} add ` + deps.join(" "));
+      logger.info(`${pkgManager} add ` + missingDeps.join(" "));
       return false;
     }
   },

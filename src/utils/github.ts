@@ -31,13 +31,43 @@ export const github = {
    */
   async getAvailableComponents(): Promise<string[]> {
     try {
-      // In a production implementation, you'd fetch a components.json or list the directory
-      // For now, return the components you have available
-      return ["button", "card"];
+      // Fetch components.json from the repository
+      const componentsJson = await this.fetchFile("components.json");
+      const componentsData = JSON.parse(componentsJson);
+
+      // Return just the names of the components
+      return componentsData.components.map((component: any) => component.name);
     } catch (error) {
-      logger.error("Failed to fetch available components list");
+      logger.error("Failed to fetch components.json");
       logger.info("Falling back to default components list");
       return ["button"]; // Fallback to just button
+    }
+  },
+
+  /**
+   * Get component metadata including dependencies
+   */
+  async getComponentMetadata(
+    componentName: string
+  ): Promise<{
+    name: string;
+    description: string;
+    dependencies: string[];
+  } | null> {
+    try {
+      // Fetch components.json from the repository
+      const componentsJson = await this.fetchFile("components.json");
+      const componentsData = JSON.parse(componentsJson);
+
+      // Find the requested component
+      return (
+        componentsData.components.find(
+          (component: any) => component.name === componentName
+        ) || null
+      );
+    } catch (error) {
+      logger.error("Failed to fetch component metadata");
+      return null;
     }
   },
 
@@ -50,12 +80,18 @@ export const github = {
   ): Promise<string[]> {
     try {
       fs.ensureDirSync(targetDir);
-
+  
+      // Get component metadata
+      const metadata = await this.getComponentMetadata(component);
+      if (!metadata) {
+        throw new Error(`Component "${component}" not found in components.json`);
+      }
+  
       // Update path to match your repository structure
       const componentPath = `apps/mobile/components/ui/${component}.tsx`;
-
+  
       try {
-        const componentContent = await github.fetchFile(componentPath);
+        const componentContent = await this.fetchFile(componentPath);
         fs.writeFileSync(
           path.join(targetDir, `${component}.tsx`),
           componentContent
@@ -65,20 +101,15 @@ export const github = {
         logger.error(`Failed to fetch component ${component}`);
         throw error;
       }
-
+  
       // Determine dependencies based on component
-      let dependencies: string[] = [];
-
-      // For now, all components need these base dependencies
-      dependencies.push("clsx", "tailwind-merge");
-
-      // Add component-specific dependencies
-      if (component === "button") {
-        dependencies.push("react-native", "expo-router");
-      } else if (component === "card") {
-        dependencies.push("react-native");
+      let dependencies: string[] = ["clsx", "tailwind-merge", "react-native"];
+      
+      // Add component-specific dependencies from metadata
+      if (metadata.dependencies) {
+        dependencies.push(...metadata.dependencies);
       }
-
+  
       return dependencies;
     } catch (error) {
       logger.error(`Failed to download component ${component}`);
