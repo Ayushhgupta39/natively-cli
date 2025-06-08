@@ -1,10 +1,10 @@
 import fs from "fs-extra";
 import path from "path";
 import { logger } from "./logger.js";
+import { config } from "./config.js";
 
 // Update the repository URL to your actual GitHub repo
-const REPO_BASE_URL =
-  "https://raw.githubusercontent.com/Ayushhgupta39/natively-ui/main";
+const REPO_BASE_URL = config.repoBaseUrl;
 
 export const github = {
   /**

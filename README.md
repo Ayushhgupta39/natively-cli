@@ -1,4 +1,4 @@
-# Nativly CLI
+# Natively CLI
 
 A React Native UI component library CLI, allowing you to easily add Tailwind-powered components to your React Native projects.
 
@@ -12,11 +12,11 @@ A React Native UI component library CLI, allowing you to easily add Tailwind-pow
 
 ## 🚀 Getting Started
 
-### 1. Initialize Nativly in your project
+### 1. Initialize natively in your project
 You don't need to install anything! Just use `npx`:
 
 ```bash
-npx nativly init
+npx natively-cli init
 ```
 
 This sets up the required utility functions and creates the component directory structure.
@@ -24,13 +24,13 @@ This sets up the required utility functions and creates the component directory 
 ### 2. Add components
 
 ```bash
-npx nativly add button
+npx natively-cli add button
 ```
 
 Or add all available components:
 
 ```bash
-npx nativly add --all
+npx natively-cli add --all
 ```
 
 ### 3. Use the components in your app
@@ -53,14 +53,14 @@ export default function MyScreen() {
 Initialize the component library in your project:
 
 ```bash
-npx nativly init
+npx natively-cli init
 ```
 
 ### `add`
 Add components to your project:
 
 ```bash
-npx nativly add [component]
+npx natively-cli add [component]
 ```
 
 #### Options:
@@ -78,7 +78,7 @@ Just a simple Button as of now :)
 
 ## 📦 Dependencies
 
-Nativly requires the following dependencies:
+Natively requires the following dependencies:
 
 - `react-native`
 - `nativewind` (or similar setup for Tailwind CSS in React Native)
