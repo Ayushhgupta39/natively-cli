@@ -4,7 +4,7 @@
   "type": "module",
   "main": "dist/index.js",
   "bin": {
-    "natively": "./dist/index.js"
+    "natively": "dist/index.js"
   },
   "scripts": {
     "build": "tsc",
