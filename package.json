@@ -1,5 +1,5 @@
 {
-  "name": "natively-cli",
+  "name": "natively-ui",
   "version": "1.0.6",
   "type": "module",
   "main": "dist/index.js",

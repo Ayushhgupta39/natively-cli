@@ -16,7 +16,7 @@ A React Native UI component library CLI, allowing you to easily add Tailwind-pow
 You don't need to install anything! Just use `npx`:
 
 ```bash
-npx natively-cli init
+npx natively-ui init
 ```
 
 This sets up the required utility functions and creates the component directory structure.
@@ -24,13 +24,13 @@ This sets up the required utility functions and creates the component directory 
 ### 2. Add components
 
 ```bash
-npx natively-cli add button
+npx natively-ui add button
 ```
 
 Or add all available components:
 
 ```bash
-npx natively-cli add --all
+npx natively-ui add --all
 ```
 
 ### 3. Use the components in your app
@@ -53,14 +53,14 @@ export default function MyScreen() {
 Initialize the component library in your project:
 
 ```bash
-npx natively-cli init
+npx natively-ui init
 ```
 
 ### `add`
 Add components to your project:
 
 ```bash
-npx natively-cli add [component]
+npx natively-ui add [component]
 ```
 
 #### Options:
